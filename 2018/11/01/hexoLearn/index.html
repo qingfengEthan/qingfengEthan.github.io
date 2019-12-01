@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="使用Hexo搭建博客 Hexo搭建&amp;ensp;&amp;ensp;&amp;ensp;&amp;ensp;Hexo是一个快速、简洁且高效的博客框架。Hexo使用 Markdown（或其他渲染引擎）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。Hexo是一个采用nodejs的静态博客，类似的博客也有很多，比较有名的Jekyll，Octopress等。Hexo官网https://hexo.io/zh-cn/。&amp;ensp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo搭建博客">
+<meta property="og:url" content="http://yoursite.com/2018/11/01/hexoLearn/index.html">
+<meta property="og:site_name" content="ethangeng">
+<meta property="og:description" content="使用Hexo搭建博客 Hexo搭建&amp;ensp;&amp;ensp;&amp;ensp;&amp;ensp;Hexo是一个快速、简洁且高效的博客框架。Hexo使用 Markdown（或其他渲染引擎）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。Hexo是一个采用nodejs的静态博客，类似的博客也有很多，比较有名的Jekyll，Octopress等。Hexo官网https://hexo.io/zh-cn/。&amp;ensp">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-12-02T13:00:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hexo搭建博客">
+<meta name="twitter:description" content="使用Hexo搭建博客 Hexo搭建&amp;ensp;&amp;ensp;&amp;ensp;&amp;ensp;Hexo是一个快速、简洁且高效的博客框架。Hexo使用 Markdown（或其他渲染引擎）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。Hexo是一个采用nodejs的静态博客，类似的博客也有很多，比较有名的Jekyll，Octopress等。Hexo官网https://hexo.io/zh-cn/。&amp;ensp">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/11/01/hexoLearn/">
+
+
+
+
+
+  <title>Hexo搭建博客 | ethangeng</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ethangeng</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/01/hexoLearn/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chao geng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ethangeng">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Hexo搭建博客</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-01T20:11:42+08:00">
+                2018-11-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="使用Hexo搭建博客"><a href="#使用Hexo搭建博客" class="headerlink" title="使用Hexo搭建博客"></a>使用Hexo搭建博客</h1><hr>
+<h1 id="Hexo搭建"><a href="#Hexo搭建" class="headerlink" title="Hexo搭建"></a>Hexo搭建</h1><p>&ensp;&ensp;&ensp;&ensp;Hexo是一个快速、简洁且高效的博客框架。Hexo使用 Markdown（或其他渲染引擎）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。Hexo是一个采用nodejs的静态博客，类似的博客也有很多，比较有名的Jekyll，Octopress等。Hexo官网<a href="https://hexo.io/zh-cn/。" target="_blank" rel="noopener">https://hexo.io/zh-cn/。</a><br>&ensp;&ensp;&ensp;&ensp;1、按照官网教程首先安装nodejs，下载地址：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://nodejs.cn/download/</span><br></pre></td></tr></table></figure></p>
+<p>&ensp;&ensp;&ensp;&ensp;2、安装git，下载地址：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://git-scm.com/downloads</span><br></pre></td></tr></table></figure></p>
+<p>&ensp;&ensp;&ensp;&ensp;3、使用npm安装hexo<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure></p>
+<p>&ensp;&ensp;&ensp;&ensp;4、创建一个文件夹作为博客的运行目录，<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">hexo i myblog //i是init的缩写 myblog是项目名</span><br><span class="line"><span class="built_in">cd</span> myblog //切换到站点根目录</span><br><span class="line">hexo g   //生成静态文件，g即generetor</span><br><span class="line">hexo s   //启动hexo服务，s即server</span><br></pre></td></tr></table></figure></p>
+<p>浏览器访问<a href="http://localhots:4000预览效果" target="_blank" rel="noopener">http://localhots:4000预览效果</a></p>
+<p>&ensp;&ensp;&ensp;&ensp;5、创建第一篇博客，进入hexo根目录下输入 ：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo new <span class="string">"myFirstPost"</span></span><br></pre></td></tr></table></figure></p>
+<p>“myFirtPost” 为博客的名字，会在根路径/source/_posts下创建myFirstPost.md。在myFirstPost.md文件里编辑文章，也可以本地通过markdown在线编辑工具编辑完后同步到服务器上去替换_posts目录下的md文件<br>执行如下命令来发布：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo g //生成静态页面</span><br><span class="line">hexo d //发布</span><br></pre></td></tr></table></figure></p>
+<p>&ensp;&ensp;&ensp;&ensp;更新服务：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo clean //清除已生成的静态文件</span><br><span class="line">hexo g     //重新生成文件</span><br></pre></td></tr></table></figure></p>
+<p>也可以直接github上建一个git仓库，本地搞定了推到github，hexo服务器端pull github上的代码就可以了。</p>
+<p>&ensp;&ensp;&ensp;&ensp;6、选择博客主题样式，可以使用hexo插件Next来定制自己喜欢的主题，参见Next官网<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://theme-next.iissnan.com/getting-started.html</span><br></pre></td></tr></table></figure></p>
+<h1 id="Hexo进程守护"><a href="#Hexo进程守护" class="headerlink" title="Hexo进程守护"></a>Hexo进程守护</h1><p>&ensp;&ensp;&ensp;&ensp;ssh登陆服务器，启动hexo服务，Ctrl+C或者ssh断开连接，服务中断，网站无法访问。Node进程守护有很多工具，Forever，PM2等，这里讲一下用forever解决Hexo进程守护的问题，首先安装forever:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install forever -g</span><br></pre></td></tr></table></figure></p>
+<p>&ensp;&ensp;&ensp;&ensp;在Hexo根路径下新建一个app.js,写入下面代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> spawn = <span class="built_in">require</span>(<span class="string">'child_process'</span>).spawn;</span><br><span class="line">free = spawn(<span class="string">'hexo'</span>, [<span class="string">'server'</span>, <span class="string">'-p 4000'</span>]);<span class="comment">/* 其实就是等于执行hexo server -p 4000*/</span></span><br><span class="line"></span><br><span class="line">free.stdout.on(<span class="string">'data'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'standard output:\n'</span> + data);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">free.stderr.on(<span class="string">'data'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123; </span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'standard error output:\n'</span> + data);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">free.on(<span class="string">'exit'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">code, signal</span>) </span>&#123;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child process eixt ,exit:'</span> + code);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>&ensp;&ensp;&ensp;&ensp;<strong>启动服务</strong><br>&ensp;&ensp;&ensp;&ensp;其实思路也很简单，大致意思就是node启动一个子进程，用forever 守护 hexo sever -p 4000这条命令（4000代表端口），关于node的child_process的相关知识，请自行baidu、google,或者去查nodejs的文档。<br>执行forever命令：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">forever --minUptime 10000 --spinSleepTime 26000 start app.js</span><br></pre></td></tr></table></figure></p>
+<p>&ensp;&ensp;&ensp;&ensp;<strong>停止服务</strong><br>&ensp;&ensp;&ensp;&ensp;这里值得注意的是你拿forever启动的服务，通过forever stopall是根本停不掉的，因为其实你执行的是hexo sever，可以通过下面的办法：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">forever stopall  //先停掉守护进程</span><br><span class="line">ps aux|grep hexo</span><br><span class="line"><span class="built_in">kill</span> -9 pid    //pid是hexo进程id</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/10/mycat/" rel="prev" title="MYCAT入门学习">
+                MYCAT入门学习 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Chao geng</p>
+              <p class="site-description motion-element" itemprop="description">ethangeng</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#使用Hexo搭建博客"><span class="nav-number">1.</span> <span class="nav-text">使用Hexo搭建博客</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hexo搭建"><span class="nav-number">2.</span> <span class="nav-text">Hexo搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hexo进程守护"><span class="nav-number">3.</span> <span class="nav-text">Hexo进程守护</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chao geng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

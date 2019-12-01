@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="utf8 与 utf8mb4&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; 标准的 UTF-8 字符集编码是可以用 1~4 个字节去编码21位字符，是一种变长的编码格式，这几乎包含了是世界上所有能看见的语言了。然而在MySQL里实现的utf8最长使用3个字节，节省空间但不能表达全部的UTF-8，只支持到了 Unicode 中的“基本多文种平面”（U+0000至U+FFF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql的utf8与utf8mb4区别，utf8mb4_bin、utf8mb4_general_ci与utf8mb4_unicode_ci的选择">
+<meta property="og:url" content="http://yoursite.com/2019/07/18/uftmb4/index.html">
+<meta property="og:site_name" content="ethangeng">
+<meta property="og:description" content="utf8 与 utf8mb4&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; 标准的 UTF-8 字符集编码是可以用 1~4 个字节去编码21位字符，是一种变长的编码格式，这几乎包含了是世界上所有能看见的语言了。然而在MySQL里实现的utf8最长使用3个字节，节省空间但不能表达全部的UTF-8，只支持到了 Unicode 中的“基本多文种平面”（U+0000至U+FFF">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-09T11:38:13.984Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mysql的utf8与utf8mb4区别，utf8mb4_bin、utf8mb4_general_ci与utf8mb4_unicode_ci的选择">
+<meta name="twitter:description" content="utf8 与 utf8mb4&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; 标准的 UTF-8 字符集编码是可以用 1~4 个字节去编码21位字符，是一种变长的编码格式，这几乎包含了是世界上所有能看见的语言了。然而在MySQL里实现的utf8最长使用3个字节，节省空间但不能表达全部的UTF-8，只支持到了 Unicode 中的“基本多文种平面”（U+0000至U+FFF">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/07/18/uftmb4/">
+
+
+
+
+
+  <title>Mysql的utf8与utf8mb4区别，utf8mb4_bin、utf8mb4_general_ci与utf8mb4_unicode_ci的选择 | ethangeng</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ethangeng</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/18/uftmb4/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chao geng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ethangeng">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Mysql的utf8与utf8mb4区别，utf8mb4_bin、utf8mb4_general_ci与utf8mb4_unicode_ci的选择</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-18T10:27:06+08:00">
+                2019-07-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<h4 id="utf8-与-utf8mb4"><a href="#utf8-与-utf8mb4" class="headerlink" title="utf8 与 utf8mb4"></a>utf8 与 utf8mb4</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 标准的 UTF-8 字符集编码是可以用 1~4 个字节去编码21位字符，是一种变长的编码格式，这几乎包含了是世界上所有能看见的语言了。然而在MySQL里实现的utf8最长使用3个字节，节省空间但不能表达全部的UTF-8，只支持到了 Unicode 中的“基本多文种平面”（U+0000至U+FFFF，Basic Multilingual Plane，BMP），包含了控制符、拉丁文，中、日、韩等绝大多数国际字符，但并不是所有，最常见的就算现在手机端常用的表情字符 emoji和一些不常用的汉字，如 “墅” ，这些需要四个字节才能编码出来。<br></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MySQL在 5.5.3 之后增加了 utf8mb4 字符编码，mb4即 most bytes 4,使用4个字节来表示完整的UTF-8。简单说 utf8mb4 是 utf8 的超集并完全兼容utf8，能够用四个字节存储更多的字符。</p>
+<p>注：QQ里面的内置的表情不算，它是通过特殊映射到的一个gif图片。一般输入法自带的就是。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当你的数据库里要求能够存入这些表情或宽字符时，可以把字段定义为 utf8mb4，同时要注意连接字符集也要设置为utf8mb4，否则在 严格模式 下会出现 Incorrect string value: /xF0/xA1/x8B/xBE/xE5/xA2… for column ‘name’这样的错误，非严格模式下此后的数据会被截断。</p>
+<h4 id="utf8mb4-bin、utf8mb4-unicode-ci-与-utf8mb4-general-ci"><a href="#utf8mb4-bin、utf8mb4-unicode-ci-与-utf8mb4-general-ci" class="headerlink" title="utf8mb4_bin、utf8mb4_unicode_ci 与 utf8mb4_general_ci"></a>utf8mb4_bin、utf8mb4_unicode_ci 与 utf8mb4_general_ci</h4><p><strong>utf8mb4_bin：</strong> 将字符串每个字符用二进制数据编译存储，区分大小写，而且可以存二进制的内容。</p>
+<p><strong>utf8mb4_general_ci</strong>：ci即case insensitive，不区分大小写。是一个遗留的 校对规则，不支持扩展，它仅能够在字符之间进行逐个比较，没有实现Unicode排序规则，在遇到某些特殊语言或者字符集，排序结果可能不一致。但是，在绝大多数情况下，这些特殊字符的顺序并不需要那么精确。</p>
+<p><strong>utf8mb4_unicode_ci</strong>：是基于标准的Unicode来排序和比较，能够在各种语言之间精确排序，Unicode排序规则为了能够处理特殊字符的情况，实现了略微复杂的排序算法。</p>
+<p><strong>collate规则：</strong><br><br>utf8mb4_bin 大小写敏感<br><br>utf8mb4_general_cs 大小写敏感<br></p>
+<p> <em>_bin: 表示的是binary case sensitive collation，也就是说是区分大小写的<br>
+ </em>_cs: case sensitive collation，区分大小写<br><br> *_ci: case insensitive collation，不区分大小写<br></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mysql默认的字符检索策略：utf8_general_ci，表示不区分大小写；utf8_general_cs表示区分大小写，utf8_bin表示二进制比较，同样也区分大小写 。（注意：在Mysql5.6.10版本中，不支持utf8_genral_cs！）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">utf8mb4_general_ci           P=p  Q=q  R=r=Ř=ř   S=s=ß=Ś=ś=Ş=ş=Š=š  sh  ss    sz</span><br><span class="line">utf8mb4_unicode_ci           P=p  Q=q  R=r=Ř=ř   S=s=Ś=ś=Ş=ş=Š=š    sh  ss=ß  sz</span><br></pre></td></tr></table></figure></p>
+<p><strong>如何选择</strong><br><br>字符除了需要存储，还需要排序或比较大小，涉及到与编码字符集对应的 排序字符集（collation）。ut8mb4对应的排序字符集常用的有 utf8mb4_unicode_ci、utf8mb4_general_ci<br>主要从排序准确性和性能两方面看：</p>
+<ul>
+<li><strong>准确性</strong><br><br>utf8mb4_unicode_ci： 是基于标准的Unicode来排序和比较，能够在各种语言之间精确排序。<br><br>utf8mb4_general_ci： 没有实现Unicode排序规则，在遇到某些特殊语言或字符是，排序结果可能不是所期望的。<br>但是在绝大多数情况下，这种特殊字符的顺序一定要那么精确吗。比如Unicode把ß、Œ当成ss和OE来看；而general会把它们当成s、e，再如ÀÁÅåāă各自都与 A 相等。</li>
+<li><strong>性能</strong><br><br>utf8mb4_general_ci： 在比较和排序的时候更快<br><br>utf8mb4_unicode_ci： 在特殊情况下，Unicode排序规则为了能够处理特殊字符的情况，实现了略微复杂的排序算法。<br>但是在绝大多数情况下，不会发生此类复杂比较。general理论上比Unicode可能快些，但相比现在的CPU来说，它远远不足以成为考虑性能的因素，索引涉及、SQL设计才是。<br><br>这也从另一个角度告诉我们，不要可能产生乱码的字段作为主键或唯一索引。例如：以url来作为唯一索引，但是它记录的有可能是乱码。</li>
+</ul>
+<p>总结：utf8mb4_general_ci 更快，utf8mb4_unicode_ci 更准确。推荐是 utf8mb4_unicode_ci，将来 8.0 里也极有可能使用变为默认的规则。相比选择哪一种collation，使用者更应该关心字符集与排序规则在db里需要统一。</p>
+<p>参考：<br><br>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://seanlook.com/2016/10/23/mysql-utf8mb4/" target="_blank" rel="noopener">http://seanlook.com/2016/10/23/mysql-utf8mb4/</a><br>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://my.oschina.net/xsh1208/blog/1052781/" target="_blank" rel="noopener">https://my.oschina.net/xsh1208/blog/1052781</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/21/spring-tx/" rel="next" title="Spring事物管理">
+                <i class="fa fa-chevron-left"></i> Spring事物管理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/09/mysql-index/" rel="prev" title="什么是索引？如何通过索引优化mysql查询">
+                什么是索引？如何通过索引优化mysql查询 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Chao geng</p>
+              <p class="site-description motion-element" itemprop="description">ethangeng</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#utf8-与-utf8mb4"><span class="nav-number">1.</span> <span class="nav-text">utf8 与 utf8mb4</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#utf8mb4-bin、utf8mb4-unicode-ci-与-utf8mb4-general-ci"><span class="nav-number">2.</span> <span class="nav-text">utf8mb4_bin、utf8mb4_unicode_ci 与 utf8mb4_general_ci</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chao geng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
