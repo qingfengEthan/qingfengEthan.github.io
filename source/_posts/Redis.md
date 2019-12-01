@@ -5,13 +5,13 @@ tags: Redis
 ---
 
 ------
-#### 一、redis简介
+#### 一、Redis简介
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Redis是一个开源的内存中的数据结构存储系统，它可以用作：数据库、缓存和消息中间件。<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;它支持多种类型的数据结构，如字符串（String），散列（Hash），列表（List），集合（Set），有序集合（Sorted Set或者是ZSet）与范围查询，Bitmaps，Hyperloglogs 和地理空间（Geospatial）索引半径查询。其中常见的数据结构类型有：String、List、Set、Hash、ZSet这5种。<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Redis 内置了复制（Replication），LUA脚本（Lua scripting）， LRU驱动事件（LRU eviction），事务（Transactions） 和不同级别的磁盘持久化（Persistence），并通过 Redis哨兵（Sentinel）和自动分区（Cluster）提供高可用性（High Availability）。<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Redis 内置了复制（Replication），LUA脚本（Lua scripting）， LRU驱动事件（LRU eviction），事务（Transactions） 和不同级别的磁盘持久化（Persistence），并通过 Redis哨兵（Sentinel）和自动分区（Cluster）提供高可用性（High Availability）。
 
-#### 二、redis为什么会这么快
+#### 二、Redis为什么会这么快
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Redis采用的是基于内存的采用的是单进程单线程模型的 KV 数据库，由C语言编写，官方提供的数据是可以达到100000+的QPS（每秒内查询次数）。<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1、完全基于内存，绝大部分请求是纯粹的内存操作，非常快速。数据存在内存中，类似于HashMap，HashMap的优势就是查找和操作的时间复杂度都是O(1)；<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2、数据结构简单，对数据操作也简单，Redis中的数据结构是专门进行设计的；<br>
@@ -20,7 +20,7 @@ tags: Redis
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;多路I/O复用模型是利用 select、poll、epoll 可以同时监察多个流的 I/O 事件的能力，在空闲的时候，会把当前线程阻塞掉，当有一个或多个流有 I/O 事件时，就从阻塞态中唤醒，于是程序就会轮询一遍所有的流（epoll 是只轮询那些真正发出了事件的流），并且只依次顺序的处理就绪的流，这种做法就避免了大量的无用操作。<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5、使用底层模型不同，它们之间底层实现方式以及与客户端之间通信的应用协议不一样，Redis直接自己构建了VM 机制 ，因为一般的系统调用系统函数的话，会浪费一定的时间去移动和请求；
 
-#### 三、redis的过期策略以及内存淘汰机制
+#### 三、Redis的过期策略以及内存淘汰机制
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**分析：** 这个问题其实相当重要，到底redis有没用到家，这个问题就可以看出来。比如你redis只能存5G数据，可是你写了10G，那会删5G的数据。怎么删的，这个问题思考过么？还有，你的数据已经设置了过期时间，但是时间到了，内存占用率还是比较高，有思考过原因么?<br>
 
@@ -134,7 +134,7 @@ appendfsync no        #从不同步。高效但是数据不会被持久化。
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;传输过程中网络断开时，redis会自动重连，并在连接之后把缺少的数据补上。
 
 
-#### 六、使用redis有什么缺点
+#### 六、使用Redis有什么缺点
 基本上使用redis都会碰到一些问题，常见的主要有五个问题：<br>
 
 ##### 1、缓存和数据库双写一致性问题<br>
