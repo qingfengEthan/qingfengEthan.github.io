@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="hystrix,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、为什么要用hystrix&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在大中型分布式系统中，通常系统很多依赖，如下图:  &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在高并发访问下，这些依赖的稳定性与否对系统的影响非常大，但是依赖有很多不可控问题：如网络连接缓慢，资源繁忙，暂时不可用，服务脱机等，如下图：  &amp;nb">
+<meta name="keywords" content="hystrix">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hystrix分布式系统限流、降级、熔断框架">
+<meta property="og:url" content="http://yoursite.com/2019/12/12/hystrix1/index.html">
+<meta property="og:site_name" content="ethangeng">
+<meta property="og:description" content="一、为什么要用hystrix&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在大中型分布式系统中，通常系统很多依赖，如下图:  &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在高并发访问下，这些依赖的稳定性与否对系统的影响非常大，但是依赖有很多不可控问题：如网络连接缓慢，资源繁忙，暂时不可用，服务脱机等，如下图：  &amp;nb">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://139.224.113.197/20191205191911.png">
+<meta property="og:image" content="http://139.224.113.197/20191205191912.png">
+<meta property="og:image" content="http://139.224.113.197/20191205191913.png">
+<meta property="og:image" content="http://139.224.113.197/20191205191914.png">
+<meta property="og:image" content="http://139.224.113.197/20191205192735.jpg">
+<meta property="og:image" content="http://139.224.113.197/20191210164008.jpg">
+<meta property="og:image" content="http://139.224.113.197/20191205192741.png">
+<meta property="og:updated_time" content="2019-12-11T14:13:01.368Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hystrix分布式系统限流、降级、熔断框架">
+<meta name="twitter:description" content="一、为什么要用hystrix&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在大中型分布式系统中，通常系统很多依赖，如下图:  &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在高并发访问下，这些依赖的稳定性与否对系统的影响非常大，但是依赖有很多不可控问题：如网络连接缓慢，资源繁忙，暂时不可用，服务脱机等，如下图：  &amp;nb">
+<meta name="twitter:image" content="http://139.224.113.197/20191205191911.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/12/hystrix1/">
+
+
+
+
+
+  <title>Hystrix分布式系统限流、降级、熔断框架 | ethangeng</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ethangeng</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/12/hystrix1/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chao geng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ethangeng">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Hystrix分布式系统限流、降级、熔断框架</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-12T10:17:09+08:00">
+                2019-12-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<h3 id="一、为什么要用hystrix"><a href="#一、为什么要用hystrix" class="headerlink" title="一、为什么要用hystrix"></a>一、为什么要用hystrix</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在大中型分布式系统中，通常系统很多依赖，如下图:</p>
+<p><img src="http://139.224.113.197/20191205191911.png" alt="cmd-markdown-logo"></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在高并发访问下，这些依赖的稳定性与否对系统的影响非常大，但是依赖有很多不可控问题：如网络连接缓慢，资源繁忙，暂时不可用，服务脱机等，如下图：</p>
+<p><img src="http://139.224.113.197/20191205191912.png" alt="cmd-markdown-logo"></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在高流量的情况下，一个后端依赖项的延迟可能导致所有服务器上的所有资源在数秒内饱和（PS：意味着后续再有请求将无法立即提供服务）</p>
+<p><img src="http://139.224.113.197/20191205191913.png" alt="cmd-markdown-logo"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">例如，对于一个依赖于30个服务的应用程序，每个服务都有99.99%的正常运行时间，期望如下：</span><br><span class="line"></span><br><span class="line">0.9999^30  =  99.7% 可用</span><br><span class="line"></span><br><span class="line">也就是说一亿个请求的0.3% = 300000 会失败</span><br><span class="line"></span><br><span class="line">如果一切正常，那么一年有26.2个小时服务是不可用的</span><br><span class="line"></span><br><span class="line">当集群依赖50个服务时：</span><br><span class="line"></span><br><span class="line">0.9999^50  =  99.5% 可用， 一年43.8小时不可用</span><br></pre></td></tr></table></figure>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;分布式系统环境下，服务间类似依赖非常常见，一个业务调用通常依赖多个基础服务。如下图，对于同步调用，当库存服务不可用时，商品服务请求线程被阻塞，当有大批量请求调用库存服务时，最终可能导致整个商品服务资源耗尽，无法继续对外提供服务。并且这种不可用可能沿请求调用链向上传递，这种现象被称为雪崩效应。<br></p>
+<p><img src="http://139.224.113.197/20191205191914.png" alt="cmd-markdown-logo"></p>
+<p><strong>雪崩效应常见场景</strong>：<br><br><strong>硬件故障：</strong> 如服务器宕机，机房断电，光纤被挖断等；<br><br><strong>流量激增：</strong> 如异常流量，重试加大流量等；<br><br><strong>缓存穿透：</strong> 一般发生在应用重启，所有缓存失效时，以及短时间内大量缓存失效时。大量的缓存不命中，使请求直击后端服务，造成服务提供者超负荷运行，引起服务不可用；<br><br><strong>程序BUG：</strong> 如程序逻辑导致内存泄漏，JVM长时间FullGC等；<br><br><strong>同步等待：</strong> 服务间采用同步调用模式，同步等待造成的资源耗尽。<br></p>
+<p><strong>雪崩效应应对策略</strong>：<br><br>针对造成雪崩效应的不同场景，可以使用不同的应对策略，没有一种通用所有场景的策略，参考如下：<br><br><strong>硬件故障：</strong> 多机房容灾、异地多活等；<br><br><strong>流量激增</strong>：服务自动扩容、流量控制（限流、关闭重试）等；<br><br><strong>缓存穿透：</strong> 缓存预加载、缓存异步加载等；<br><br><strong>程序BUG</strong>：修改程序bug、及时释放资源等；<br><br><strong>同步等待</strong>：资源隔离、MQ解耦、不可用服务调用快速失败等。资源隔离通常指不同服务调用采用不同的线程池；不可用服务调用快速失败一般通过熔断器模式结合超时机制实现。<br></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hystrix，中文含义是豪猪，因其背上长满棘[jí]刺，从而拥有了自我保护的能力。本文所说的Hystrix是Netflix开源的一款容错框架，同样具有自我保护能力，实现了容错和自我保护。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Netflix Hystrix是SOA/微服务架构中提供服务隔离、熔断、降级机制的工具/框架。Netflix Hystrix是断路器的一种实现，用于高微服务架构的可用性，是防止服务出现雪崩的利器。</p>
+<h4 id="Hystrix流程解析"><a href="#Hystrix流程解析" class="headerlink" title="Hystrix流程解析"></a>Hystrix流程解析</h4><p><img src="http://139.224.113.197/20191205192735.jpg" alt="cmd-markdown-logo"></p>
+<p><strong>流程说明:</strong><br></p>
+<ol>
+<li><p>每次调用创建一个新的HystrixCommand,把依赖调用封装在run()方法中；<br></p>
+</li>
+<li><p>执行execute()/queue做同步或异步调用；<br></p>
+</li>
+</ol>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;判断是否使用缓存响应请求，若启用了缓存，且缓存可用，直接使用缓存响应请求。Hystrix支持请求缓存，但需要用户自定义启动；</p>
+<ol start="3">
+<li><p>判断熔断器(circuit-breaker)是否打开,如果打开跳到步骤8,进行降级策略，如果关闭进入步骤4；<br></p>
+</li>
+<li><p>判断线程池/队列/信号量是否跑满，如果跑满进入降级步骤8,否则继续后续步骤；<br></p>
+</li>
+<li><p>调用HystrixCommand的run方法，运行依赖逻辑：<br></p>
+</li>
+</ol>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5a:依赖逻辑调用超时,进入步骤8；<br></p>
+<ol start="6">
+<li>判断逻辑是否调用成功： <br></li>
+</ol>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6a. 返回成功调用结果<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6b. 调用出错，进入步骤8<br></p>
+<ol start="7">
+<li><p>计算熔断器状态,所有的运行状态(成功, 失败, 拒绝,超时)上报给熔断器，用于统计从而判断熔断器状态；<br></p>
+</li>
+<li><p>getFallback()降级逻辑 <br></p>
+</li>
+</ol>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8a. 没有实现getFallback的Command将直接抛出异常<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8b. fallback降级逻辑调用成功直接返回<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8c. 降级逻辑调用失败抛出异常<br></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;以下四种情况将触发getFallback调用：<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1). run()方法抛出非HystrixBadRequestException异常。<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2). run()方法调用超时<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3). 熔断器开启拦截调用<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(4). 线程池/队列/信号量是否跑满<br></p>
+<ol start="9">
+<li>返回执行成功结果。<br></li>
+</ol>
+<h3 id="二、Hystrix命令"><a href="#二、Hystrix命令" class="headerlink" title="二、Hystrix命令"></a>二、Hystrix命令</h3><p>Hystrix有两个请求命令：HystrixCommand和HystrixObservableCommand。<br><br><img src="http://139.224.113.197/20191210164008.jpg" alt="cmd-markdown-logo"></p>
+<p>HystrixCommand用在依赖服务返回单个操作结果的时候。有两种执行方式：</p>
+<p>execute()<br><br>以同步堵塞方式执行run()，只支持接收一个值对象。hystrix会从线程池中取一个线程来执行run()，并等待返回值。<br></p>
+<p>queue()<br><br>以异步非阻塞方式执行run()，只支持接收一个值对象。调用queue()就直接返回一个Future对象。可通过Future.get()拿到run()的返回结果，但Future.get()是阻塞执行的。若执行成功，Future.get()返回单个返回值。当执行失败时，如果没有重写fallback，Future.get()抛出异常。<br></p>
+<p>使用示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">public class MyHystrixCommand extends HystrixCommand&lt;String&gt; &#123;</span><br><span class="line"></span><br><span class="line">    private final String param;</span><br><span class="line"></span><br><span class="line">    public MyHystrixCommand(String param) &#123;</span><br><span class="line">        super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(&quot;testGroup&quot;)).</span><br><span class="line">                andCommandKey(HystrixCommandKey.Factory.asKey(&quot;testCommand&quot;)).</span><br><span class="line">                andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(&quot;testThreadPool&quot;)));</span><br><span class="line">        this.param = param;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected String run() throws Exception &#123;</span><br><span class="line">        int i = 1/0;    //模拟异常</span><br><span class="line">        return &quot;hello &quot; + param + &quot;!&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected String getFallback() &#123;</span><br><span class="line">        return &quot;execute faild&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String [] args) throws ExecutionException, InterruptedException &#123;</span><br><span class="line">        MyHystrixCommand command = new MyHystrixCommand(&quot;test execute&quot;);</span><br><span class="line">        System.out.println(command.execute());</span><br><span class="line"></span><br><span class="line">        Future&lt;String&gt; future = new MyHystrixCommand(&quot;test queue&quot;).queue();</span><br><span class="line">        System.out.println(future.get());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>HystrixObservableCommand 用在依赖服务返回多个操作结果的时候。它也实现了两种执行方式：<br></p>
+<p>observe()<br><br>事件注册前执行construct()，支持接收多个值对象，取决于发射源。调用observe()会返回一个hot Observable，也就是说，调用observe()自动触发执行construct()，无论是否存在订阅者。<br></p>
+<p>observe()使用方法：<br><br>调用observe()会返回一个Observable对象<br><br>调用这个Observable对象的subscribe()方法完成事件注册，从而获取结果。<br></p>
+<p>toObservable()<br><br>事件注册后执行construct()，支持接收多个值对象，取决于发射源。调用toObservable()会返回一个cold Observable，也就是说，调用toObservable()不会立即触发执行construct()，必须有订阅者订阅Observable时才会执行。<br></p>
+<p>使用示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">public class MyObservableCommand extends HystrixObservableCommand&lt;String&gt;&#123;</span><br><span class="line"></span><br><span class="line">    private final String param;</span><br><span class="line"></span><br><span class="line">    public MyObservableCommand(String param) &#123;</span><br><span class="line">        super(HystrixObservableCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(&quot;testGroup&quot;)).</span><br><span class="line">                andCommandKey(HystrixCommandKey.Factory.asKey(&quot;testCommand&quot;)));</span><br><span class="line">        this.param = param;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected Observable&lt;String&gt; construct() &#123;</span><br><span class="line">        return Observable.create(new Observable.OnSubscribe&lt;String&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void call(Subscriber&lt;? super String&gt; subscriber) &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    if(!subscriber.isUnsubscribed()) &#123;</span><br><span class="line">                        subscriber.onNext(&quot;Hello&quot;);</span><br><span class="line">                        int i = 1 / 2; //模拟异常</span><br><span class="line">                        subscriber.onNext(param + &quot;!&quot;);</span><br><span class="line">                        subscriber.onCompleted();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; catch (Exception e) &#123;</span><br><span class="line">                    subscriber.onError(e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).subscribeOn(Schedulers.io());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 服务降级</span><br><span class="line">     */</span><br><span class="line">    @Override</span><br><span class="line">    protected Observable&lt;String&gt; resumeWithFallback() &#123;</span><br><span class="line">        return Observable.create(new Observable.OnSubscribe&lt;String&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void call(Subscriber&lt;? super String&gt; subscriber) &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    if (!subscriber.isUnsubscribed()) &#123;</span><br><span class="line">                        subscriber.onNext(&quot;execute faild！&quot;);</span><br><span class="line">                        subscriber.onNext(&quot;figure out the reason！&quot;);</span><br><span class="line">                        subscriber.onCompleted();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; catch (Exception e) &#123;</span><br><span class="line">                    subscriber.onError(e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).subscribeOn(Schedulers.io());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String [] args)&#123;</span><br><span class="line">        Observable&lt;String&gt; observable = new MyObservableCommand(&quot;observable&quot;).observe();</span><br><span class="line">        Iterator&lt;String&gt; iterator = observable.toBlocking().getIterator();</span><br><span class="line">        while(iterator.hasNext()) &#123;</span><br><span class="line">            System.out.println(&quot;observable &gt;&gt;&gt;&gt;&quot; + iterator.next());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Observable&lt;String&gt; observable2 = new MyObservableCommand(&quot;toObservable&quot;).toObservable();</span><br><span class="line">        ReplaySubject subject = ReplaySubject.create();</span><br><span class="line">        observable2.subscribe(subject);</span><br><span class="line">        Iterator&lt;String&gt; iterator2 = observable2.toBlocking().getIterator();</span><br><span class="line">        while(iterator2.hasNext()) &#123;</span><br><span class="line">            System.out.println(&quot;toObservable &gt;&gt;&gt;&gt;&quot; + iterator2.next());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;如果继承的是HystrixCommand，hystrix会从线程池中取一个线程以非阻塞方式执行run()，调用线程不必等待run()；如果继承的是HystrixObservableCommand，将以调用线程堵塞执行construct()，调用线程需等待construct()执行完才能继续往下走。<br></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;需注意的是，HystrixCommand也支持toObservable()和observe()，但是即使将HystrixCommand转换成Observable，它也只能发射一个值对象。只有HystrixObservableCommand才支持发射多个值对象。<br></p>
+<p>几种方法之前的关系<br></p>
+<p><img src="http://139.224.113.197/20191205192741.png" alt="cmd-markdown-logo"></p>
+<p>execute()实际是调用了queue().get()<br></p>
+<p>queue()实际调用了toObservable().toBlocking().toFuture()<br></p>
+<p>observe()实际调用toObservable()获得一个cold Observable，再创建一个ReplaySubject对象订阅Observable，将源Observable转化为hot Observable。因此调用observe()会自动触发执行run()/construct()。<br></p>
+<p>Hystrix总是以Observable的形式作为响应返回，不同执行命令的方法只是进行了相应的转换。<br></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/hystrix/" rel="tag"># hystrix</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/11/Hexo+Github/" rel="next" title="Hexo+GitHub 搭建个人博客">
+                <i class="fa fa-chevron-left"></i> Hexo+GitHub 搭建个人博客
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Chao geng</p>
+              <p class="site-description motion-element" itemprop="description">ethangeng</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、为什么要用hystrix"><span class="nav-number">1.</span> <span class="nav-text">一、为什么要用hystrix</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Hystrix流程解析"><span class="nav-number">1.1.</span> <span class="nav-text">Hystrix流程解析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、Hystrix命令"><span class="nav-number">2.</span> <span class="nav-text">二、Hystrix命令</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chao geng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
