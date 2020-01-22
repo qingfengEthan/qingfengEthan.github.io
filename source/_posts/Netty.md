@@ -1,5 +1,5 @@
 ---
-title: Hystrix分布式系统限流、降级、熔断框架（二）
+title: Mina、Netty线程模型
 date: 2020-01-22 15:33:29
 tags: Java
 ---
