@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Reactor线程模型&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Reactor是反应堆的意思，Reactor模式即Dispatcher模式，服务器程序处理传入的多路请求，将他们同步分派给各请求对应的处理线程。 Reactor有两个关键角色：  Reactor Reactor在一个单独线程中运行，负责监听和分发事件，将请求事件分发给处理线程来对IO事件作出">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hystrix分布式系统限流、降级、熔断框架（二）">
+<meta property="og:url" content="http://yoursite.com/2020/01/22/Netty/index.html">
+<meta property="og:site_name" content="ethangeng">
+<meta property="og:description" content="Reactor线程模型&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Reactor是反应堆的意思，Reactor模式即Dispatcher模式，服务器程序处理传入的多路请求，将他们同步分派给各请求对应的处理线程。 Reactor有两个关键角色：  Reactor Reactor在一个单独线程中运行，负责监听和分发事件，将请求事件分发给处理线程来对IO事件作出">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://139.224.113.197/20200121154620.jpg">
+<meta property="og:image" content="http://139.224.113.197/20200121155739.jpg">
+<meta property="og:image" content="http://139.224.113.197/20200121161945.jpg">
+<meta property="og:updated_time" content="2020-01-22T07:38:14.147Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hystrix分布式系统限流、降级、熔断框架（二）">
+<meta name="twitter:description" content="Reactor线程模型&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Reactor是反应堆的意思，Reactor模式即Dispatcher模式，服务器程序处理传入的多路请求，将他们同步分派给各请求对应的处理线程。 Reactor有两个关键角色：  Reactor Reactor在一个单独线程中运行，负责监听和分发事件，将请求事件分发给处理线程来对IO事件作出">
+<meta name="twitter:image" content="http://139.224.113.197/20200121154620.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/22/Netty/">
+
+
+
+
+
+  <title>Hystrix分布式系统限流、降级、熔断框架（二） | ethangeng</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ethangeng</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/22/Netty/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chao geng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ethangeng">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Hystrix分布式系统限流、降级、熔断框架（二）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-22T15:33:29+08:00">
+                2020-01-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<h3 id="Reactor线程模型"><a href="#Reactor线程模型" class="headerlink" title="Reactor线程模型"></a>Reactor线程模型</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reactor是反应堆的意思，Reactor模式即Dispatcher模式，服务器程序处理传入的多路请求，将他们同步分派给各请求对应的处理线程。<br><br></p>
+<p>Reactor有两个关键角色：</p>
+<ul>
+<li><strong>Reactor</strong> Reactor在一个单独线程中运行，负责监听和分发事件，将请求事件分发给处理线程来对IO事件作出反应。</li>
+<li><strong>Handlers</strong> 处理程序执行IO事件完成响应的事件操作。</li>
+</ul>
+<p><br></p>
+<p><img src="http://139.224.113.197/20200121154620.jpg" alt="cmd-markdown-logo"></p>
+<p>根据Reactor和Handler数量的不同，Reactor模型有3个变种。</p>
+<ol>
+<li>单Reactor单线程</li>
+<li>单Reactor多线程</li>
+<li>主从Reactor多线程<br>主从Reactor包含MainReactor和SubReactor</li>
+</ol>
+<ul>
+<li>MainReactor负责接收请求，并转发给SubReactor</li>
+<li>SubSReactor负责相应通道的读写请求</li>
+<li>非IO请求的任务直接写入工作队列，并等待Worker Thread处理。</li>
+</ul>
+<p><br></p>
+<p><img src="http://139.224.113.197/20200121155739.jpg" alt="cmd-markdown-logo"></p>
+<p><br></p>
+<h3 id="Mina线程模型"><a href="#Mina线程模型" class="headerlink" title="Mina线程模型"></a>Mina线程模型</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在MINA中，有三种非常重要的线程：Acceptor thread<br>、Connector thread、I/O processor thread。<br></p>
+<p><strong>Acceptor thread</strong>：这个线程用于TCP服务器接收新的连接，并将连接分配到I/O processor thread，由I/O processor thread来处理IO操作。每个NioSocketAcceptor创建一个Acceptor thread，线程数量不可配置。</p>
+<p><strong>Connector thread</strong>：用于处理TCP客户端连接到服务器，并将连接分配到I/O processor thread，由I/O processor thread来处理IO操作。每个NioSocketConnector创建一个Connector thread，线程数量不可配置。</p>
+<p><strong>I/O processor thread</strong>：用于处理TCP连接的I/O操作，如read、write。I/O processor thread的线程数量可通过NioSocketAcceptor或NioSocketConnector构造方法来配置，默认是CPU核心数+1。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MINA的TCP服务器包含一个Acceptor thread和多个I/O processor thread，当有新的客户端连接到服务器，首先会由Acceptor thread获取到这个连接，同时将这个连接分配给多个I/O processor thread中的一个线程，当客户端发送数据给服务器，对应的I/O processor thread负责读取这个数据，并执行IoFilterChain中的IoFilter以及IoHandle。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;由于I/O processor thread本身数量有限，通常就那么几个，但是又要处理成千上万个连接的IO操作，如果有耗时、阻塞的任务，例如查询数据库，那么就会阻塞I/O processor thread，导致无法及时处理其他IO事件，服务器性能下降。<br></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;针对这个问题，MINA中提供了一个ExecutorFilter，用于将需要执行很长时间的会阻塞I/O processor thread的业务逻辑放到另外的线程中，这样就不会阻塞I/O processor thread，不会影响IO操作。</p>
+<h3 id="Netty的线程模型"><a href="#Netty的线程模型" class="headerlink" title="Netty的线程模型"></a>Netty的线程模型</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Netty是目前流行的由JBOSS提供的一个Java开源框架NIO框架，Netty提供异步的、事件驱动的网络应用程序框架和工具，用以快速开发高性能、高可靠性的网络服务器和客户端程序。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Netty无疑是NIO的老大，它的健壮性、功能、性能、可定制性和可扩展性在同类框架都是首屈一指的。它已经得到成百上千的商业/商用项目验证，如Hadoop的RPC框架Avro、RocketMQ以及主流的分布式通信框架Dubbo等等。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Netty基于JDK自带的NIO的API进行封装，相比JDK原生NIO，Netty提供了相对十分简单易用的API，非常适合网络编程。Netty是完全基于NIO实现的，所以Netty是异步的。<br>Netty同时是基于主从Reactor多线程模型实现，借鉴了MainReactor和SubReactor结构。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;作为一个异步NIO框架，Netty的所有IO操作都是异步非阻塞的，通过Future-Listener机制，用户可以方便的主动获取或者通过通知机制获得IO操作结果。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Netty的优点可以总结如下：</p>
+<ol>
+<li><p>API使用简单，开发门槛低；</p>
+</li>
+<li><p>功能强大，预置了多种编解码功能，支持多种主流协议；</p>
+</li>
+<li><p>定制能力强，可以通过ChannelHandler对通信框架进行灵活地扩展；</p>
+</li>
+<li><p>性能高，通过与其他业界主流的NIO框架对比，Netty的综合性能最优；</p>
+</li>
+<li><p>成熟、稳定，Netty修复了已经发现的所有JDK NIO BUG，业务开发人员不需要再为NIO的BUG而烦恼；</p>
+</li>
+<li><p>社区活跃，版本迭代周期短，发现的BUG可以被及时修复，同时，更多的新功能会加入；</p>
+</li>
+<li><p>经历了大规模的商业应用考验，质量得到验证。在互联网、大数据、网络游戏、企业应用、电信软件等众多行业得到成功商用，证明了它已经完全能够满足不同行业的商业应用了。</p>
+</li>
+</ol>
+<p>Netty服务端的创建方式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">EventLoopGroup bossGroup = new NioEventLoopGroup();</span><br><span class="line">EventLoopGroup workGroup = new NioEventLoopGroup();</span><br><span class="line">ServerBootstrap server = new ServerBootstrap();</span><br><span class="line">server.group(bossGroup, bossGroup)</span><br><span class="line">      .channel(NioServerSocketChannel.class);</span><br></pre></td></tr></table></figure></p>
+<p>BossGroup和WorkGroup均是线程池</p>
+<ul>
+<li>BossGroup线程池在绑定某个端口后，从BossGroup线程池获取一个线程作为MainReactor后处理端口的accept事件，一个端口对应一个boss。如果只监听一个端口，则BossGroup线程组只创建一个线程即可。</li>
+<li>WorkGroup线程会被SubReactor和worker线程充分利用。</li>
+</ul>
+<h4 id="Netty的关键组件如下："><a href="#Netty的关键组件如下：" class="headerlink" title="Netty的关键组件如下："></a>Netty的关键组件如下：</h4><ul>
+<li><p>BootStrap、ServerBootStrap <br><br>Boostrap客户端启动引导类，ServerBootstrap服务端启动引导类，Bootstrap负责配置整改Netty，并串联起各个组件。</p>
+</li>
+<li><p>Channel <br><br>Netty网络通信的组件，能够用于执行网络IO操作。</p>
+</li>
+<li><p>Selector <br><br>Netty基于Selector对象实现I/O多路复用，通过 Selector, 一个线程可以监听多个连接的Channel事件, 当向一个Selector中注册Channel 后，Selector 内部的机制就可以自动不断地查询(select) 这些注册的Channel是否有已就绪的I/O事件(例如可读, 可写, 网络连接完成等)。</p>
+</li>
+<li><p>NioEventLoop <br><br>NioEventLoop中维护一个线程和任务队列，支持异步提交任务，线程启动时会调用NioEventLoop的run方法，执行IO和非IO任务。 其中IO任务由prossSelectedKeys触发，非IO任务由runAlltasks触发。</p>
+</li>
+<li><p>NioEventLoopGroup <br><br>NioEventLoopGroup用来管理EventLoop，可以理解为线程组，内部维护了一组线程。  </p>
+</li>
+</ul>
+<p><br><br>Netty的工作架构图如下：</p>
+<p><br></p>
+<p><img src="http://139.224.113.197/20200121161945.jpg" alt="cmd-markdown-logo"></p>
+<h4 id="初始化netty服务端的过程如下"><a href="#初始化netty服务端的过程如下" class="headerlink" title="初始化netty服务端的过程如下"></a>初始化netty服务端的过程如下</h4><ol>
+<li>初始化创建2个NioEventLoopGroup，其中boosGroup用于Accetpt连接建立事件并分发请求，workerGroup用于处理I/O读写事件和业务逻辑。</li>
+<li>基于ServerBootstrap(服务端启动引导类)，配置EventLoopGroup、Channel类型，连接参数、配置入站、出站事件handler。</li>
+<li>绑定端口，开始工作。</li>
+</ol>
+<p>server端包含1个Boss NioEventLoopGroup和1个Worker NioEventLoopGroup，NioEventLoopGroup相当于1个事件循环组，这个组里包含多个事件循环NioEventLoop，每个NioEventLoop包含1个selector和1个事件循环线程。</p>
+<p>每个Boss NioEventLoop循环执行的任务包含3步</p>
+<ol>
+<li>轮询accept事件</li>
+<li>处理accept I/O事件，与Client建立连接，生成NioSocketChannel，并将NioSocketChannel注册到某个Worker NioEventLoop的Selector上</li>
+<li>runAllTasks处理任务队列中的非IO任务。</li>
+</ol>
+<p>每个Worker NioEventLoop循环执行的任务包含3步：</p>
+<ol>
+<li>轮询read、write事件</li>
+<li>处I/O事件，即read、write事件，在NioSocketChannel可读、可写事件发生时进行处理</li>
+<li>runAllTasks处理任务队列中的非IO任务。</li>
+</ol>
+<p>总结：<br></p>
+<ol>
+<li>Netty的TCP服务器启动时会创建两个NioEventLoopGroup，一个boss，一个worker。<br>NioEventLoopGroup实际是是一个线程组，可通过构造函数设置线程数，默认是CPU核数*2。</li>
+<li>当有新的TCP连接到服务器时，将有boss线程负责接收，然后将其注册到worder线程，worker线程负责处理IO操作，如read、write。当客户端数据发送到服务端时，worker负责接收数据，并执行ChannelPipeline的ChannelHandler方法。</li>
+</ol>
+<h3 id="Netty和Mina比较"><a href="#Netty和Mina比较" class="headerlink" title="Netty和Mina比较"></a>Netty和Mina比较</h3><p>mina与netty都是Trustin Lee的作品，所以在很多方面都十分相似，他们线程模型也是基本一致，采用了Reactors in threads模型，即Main Reactor + Sub Reactors的模式。</p>
+<ol>
+<li>都是Trustin Lee的作品，Netty更晚；</li>
+<li>Mina将内核和一些特性的联系过于紧密，使得用户在不需要这些特性的时候无法脱离，相比下性能会有所下降，Netty解决了这个设计问题；</li>
+<li>Netty的文档更清晰，很多Mina的特性在Netty里都有；</li>
+<li>Netty更新周期更短，新版本的发布比较快；</li>
+<li>它们的架构差别不大，Mina靠apache生存，而Netty靠jboss，和jboss的结合度非常高，Netty有对google protocal buf的支持，有更完整的ioc容器支持(spring,guice,jbossmc和osgi)；</li>
+<li>Netty比Mina使用起来更简单，Netty里你可以自定义的处理upstream events或/和downstream events，可以使用decoder和encoder来解码和编码发送内容；</li>
+<li>Netty和Mina在处理UDP时有一些不同，Netty将UDP无连接的特性暴露出来；而Mina对UDP进行了高级层次的抽象，可以把UDP当成”面向连接”的协议，而要Netty做到这一点比较困难。</li>
+<li>Netty中的boss线程类似于MINA的Acceptor thread，work线程和MINA的I/O processor thread类似。不同的一点是MINA的Acceptor thread是单个线程，而Netty的boss是一个线程组。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/17/BIO/" rel="next" title="BIO、NIO、AIO模型分析">
+                <i class="fa fa-chevron-left"></i> BIO、NIO、AIO模型分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Chao geng</p>
+              <p class="site-description motion-element" itemprop="description">ethangeng</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reactor线程模型"><span class="nav-number">1.</span> <span class="nav-text">Reactor线程模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mina线程模型"><span class="nav-number">2.</span> <span class="nav-text">Mina线程模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Netty的线程模型"><span class="nav-number">3.</span> <span class="nav-text">Netty的线程模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Netty的关键组件如下："><span class="nav-number">3.1.</span> <span class="nav-text">Netty的关键组件如下：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#初始化netty服务端的过程如下"><span class="nav-number">3.2.</span> <span class="nav-text">初始化netty服务端的过程如下</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Netty和Mina比较"><span class="nav-number">4.</span> <span class="nav-text">Netty和Mina比较</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chao geng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

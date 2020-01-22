@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="什么是 I/O&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在计算机系统中I/O就是输入（Input）和输出(Output)的意思，针对不同的操作对象，可以划分为磁盘I/O模型，网络I/O模型，内存映射I/O, Direct I/O、数据库I/O等，常见的I/O有磁盘I/O和网络I/O。 &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BIO、NIO、AIO模型分析">
+<meta property="og:url" content="http://yoursite.com/2020/01/17/BIO/index.html">
+<meta property="og:site_name" content="ethangeng">
+<meta property="og:description" content="什么是 I/O&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在计算机系统中I/O就是输入（Input）和输出(Output)的意思，针对不同的操作对象，可以划分为磁盘I/O模型，网络I/O模型，内存映射I/O, Direct I/O、数据库I/O等，常见的I/O有磁盘I/O和网络I/O。 &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://139.224.113.197/20200120175011.jpg">
+<meta property="og:image" content="http://139.224.113.197/20200122101706.png">
+<meta property="og:image" content="http://139.224.113.197/20200120175012.jpg">
+<meta property="og:image" content="http://139.224.113.197/20200122103509.jpg">
+<meta property="og:image" content="http://139.224.113.197/20200120175013.jpg">
+<meta property="og:image" content="http://139.224.113.197/20200122101735.jpg">
+<meta property="og:image" content="http://139.224.113.197/20200122101749.jpg">
+<meta property="og:updated_time" content="2020-01-22T07:38:14.142Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="BIO、NIO、AIO模型分析">
+<meta name="twitter:description" content="什么是 I/O&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;在计算机系统中I/O就是输入（Input）和输出(Output)的意思，针对不同的操作对象，可以划分为磁盘I/O模型，网络I/O模型，内存映射I/O, Direct I/O、数据库I/O等，常见的I/O有磁盘I/O和网络I/O。 &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp">
+<meta name="twitter:image" content="http://139.224.113.197/20200120175011.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/17/BIO/">
+
+
+
+
+
+  <title>BIO、NIO、AIO模型分析 | ethangeng</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ethangeng</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/17/BIO/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chao geng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ethangeng">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">BIO、NIO、AIO模型分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-17T09:39:19+08:00">
+                2020-01-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<h3 id="什么是-I-O"><a href="#什么是-I-O" class="headerlink" title="什么是 I/O"></a>什么是 I/O</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在计算机系统中I/O就是输入（Input）和输出(Output)的意思，针对不同的操作对象，可以划分为磁盘I/O模型，网络I/O模型，内存映射I/O, Direct I/O、数据库I/O等，常见的I/O有磁盘I/O和网络I/O。<br><br></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;什么是IO的Block呢？考虑下面两种情况：</p>
+<ul>
+<li>用系统调用read从socket里读取一段数据</li>
+<li>用系统调用read从一个磁盘文件读取一段数据到内存</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;对于第一种情况，算作Block，因为Linux无法知道网络上对方是否会发数据。如果没数据发过来，对于调用read的程序来说，就只能“等”。对于第二种情况，不算做Block。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一个解释是，所谓“Block”是指操作系统可以预见这个Block会发生才会主动Block。例如当读取TCP连接的数据时，如果发现Socket buffer里没有数据就可以确定定对方还没有发过来，于是Block；而对于普通磁盘文件的读写，也许磁盘运作期间会抖动，会短暂暂停，但是操作系统无法预见这种情况，只能视作不会Block，照样执行。我们讨论的BIO、NIO和AIO都是针对网络I/O模型。</p>
+<p>进程中的IO调用步骤大致可以分为以下四步： </p>
+<ol>
+<li>进程向操作系统请求数据 ;</li>
+<li>操作系统把外部数据加载到内核的缓冲区中; </li>
+<li>操作系统把内核的缓冲区拷贝到进程的缓冲区 ;</li>
+<li>进程获得数据完成自己的功能 ;</li>
+</ol>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当操作系统在把外部数据放到进程缓冲区的这段时间（即上述的第2，3步）可以分为两个阶段：OS把外部数据加载到内核的缓冲区和OS把内核的缓冲区拷贝到进程的缓冲区。根据这两个阶段的情况产生了几种不同的IO模型：BIO、NIO、IO多路复用和AIO，如果应用进程是挂起等待的，那么就是同步IO，反之，就是异步IO，也就是AIO 。</p>
+<h3 id="同步与异步"><a href="#同步与异步" class="headerlink" title="同步与异步"></a>同步与异步</h3><ul>
+<li><strong>同步</strong> 是指发出一个请求，在没有得到结果之前该请求就不返回结果。请求不返回结果之前不去处理其他请求。<br></li>
+<li><strong>异步</strong> 是指发出一个请求后，立刻得到了回应，但没有返回结果。这时我们可以再处理别的事情(发送其他请求)，所以这种方式需要我们通过状态主动查看是否有了结果, 或者可以设置一个回调来通知调用者。</li>
+<li><strong>同步与异步</strong> 关注的是 <strong>消息通知机制</strong> 。</li>
+<li>同步做一件事情的时候，不能做其他事情，或者不停的去问询事情的处理结果。<br>  异步可以去做其他事情，等待事情结束之后通知，而不需要一直等待或者不时的去问。<br></li>
+</ul>
+<h3 id="阻塞与非阻塞"><a href="#阻塞与非阻塞" class="headerlink" title="阻塞与非阻塞"></a>阻塞与非阻塞</h3><ul>
+<li><strong>阻塞</strong> 是指请求结果返回之前，当前线程会被挂起(被阻塞)，这时线程什么也做不了。<br></li>
+<li><strong>非阻塞</strong> 是指请求结果返回之前，当前线程没有被阻塞，仍然可以做其他事情。</li>
+<li><strong>阻塞和非阻塞</strong> 关注的是 <strong>程序等待调用结果时的状态</strong>。<br></li>
+<li><strong>阻塞与非阻塞</strong> 关注的是对IO操作的不同的方式，阻塞方式下，必须等到读写完成才返回，非阻塞状态下，可以立即返回，等到读写完成之后才告知客户端已经处理完毕。</li>
+</ul>
+<h3 id="BIO（同步阻塞）"><a href="#BIO（同步阻塞）" class="headerlink" title="BIO（同步阻塞）"></a>BIO（同步阻塞）</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BIO即Blocking IO，JDK1.4 版本之前，消息之间通信使用的是BIO模式，服务端启动一个socket连接，当有连接请求过来的时候，服务端创建线程，或者从线程池中获取线程来处理，当服务端的线程满了之后，就无法继续处理。要求客户端等待，或者直接拒绝。等到服务端释放线程处理。<br><br></p>
+<p><img src="http://139.224.113.197/20200120175011.jpg" alt="cmd-markdown-logo"><br><br></p>
+<ul>
+<li>BIO弊端：线程资源是宝贵且有限，大量的线程会占用大量的内存空间，同时线程间的上下文切换也会消耗很多资源。</li>
+<li>BIO的特点就是在IO执行的两个阶段都被block了。</li>
+<li>BIO核心是：<strong>一个连接一个线程</strong>。</li>
+</ul>
+<p><br></p>
+<p><img src="http://139.224.113.197/20200122101706.png" alt="cmd-markdown-logo"><br><br><br>为避免请求创建的连接不做任何事情而造成不必要的线程开销，BIO可以通过线程池机制改善 (伪NIO）。<br><br></p>
+<p><img src="http://139.224.113.197/20200120175012.jpg" alt="cmd-markdown-logo"><br><br></p>
+<h3 id="NIO（同步非阻塞）"><a href="#NIO（同步非阻塞）" class="headerlink" title="NIO（同步非阻塞）"></a>NIO（同步非阻塞）</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NIO即Non-blocking IO，同步非阻塞，服务器实现模式为一个请求一个线程，即客户端发送的连接请求都会注册到多路复用器上，多路复用器轮询到连接有I/O请求时才启动一个线程进行处理。<br><br>NIO中轮询操作是用户线程进行的<br></p>
+<ul>
+<li>NIO的特点就是程序需要不断的主动询问内核数据是否准备好。第一个阶段非阻塞，第二个阶段阻塞。</li>
+<li>NIO核心是 <strong>一个请求一个线程</strong> 。</li>
+<li>tomcat 6之后开始支持使用NIO模型。<br><br></li>
+</ul>
+<p><img src="http://139.224.113.197/20200122103509.jpg" alt="cmd-markdown-logo"><br><br></p>
+<h4 id="缓冲区Buffer"><a href="#缓冲区Buffer" class="headerlink" title="缓冲区Buffer"></a>缓冲区Buffer</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在NIO库中，所有数据都是用缓冲区处理的。在读取数据时，它是直接读到缓冲区中的；在写入数据时，也是写入到缓冲区中。任何时候访问NIO中的数据，都是通过缓冲区进行操作。<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;缓冲区实际上是一个数组，并提供了对数据结构化访问以及维护读写位置等信息。具体的缓存区有这些：ByteBuffe、CharBuffer、 ShortBuffer、IntBuffer、LongBuffer、FloatBuffer、DoubleBuffer。他们实现了相同的接口：Buffer。</p>
+<h4 id="通道Channel"><a href="#通道Channel" class="headerlink" title="通道Channel"></a>通道Channel</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;我们对数据的读取和写入要通过Channel，通道不同于流的地方就是通道是双向的，可以用于读、写和同时读写操作。底层的操作系统的通道一般都是全双工的，所以全双工的Channel比流能更好的映射底层操作系统的API。<br>Channel主要分两大类：</p>
+<ul>
+<li>SelectableChannel：用户网络读写</li>
+<li>FileChannel：用于文件操作</li>
+</ul>
+<h4 id="多路选择复用器"><a href="#多路选择复用器" class="headerlink" title="多路选择复用器"></a>多路选择复用器</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NIO中轮询操作是用户线程进行的，如果把这个任务交给其他线程，则用户线程就不用这么费劲的查询状态了。IO多路复用调用系统级别的select或poll模型，由系统进行监控IO状态。select轮询可以监控许多socket的IO请求，当有一个socket的数据准备好时就可以返回。<br></p>
+<p><img src="http://139.224.113.197/20200120175013.jpg" alt="cmd-markdown-logo"></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;引入了channel和多路复用器的概念，所有的连接都注册到多路复用器上，多路复用器只需要一个线程去轮询注册上来的channel，当发现channel中有IO请求的时候，才会创建或者启用一个线程。<br><br><br><img src="http://139.224.113.197/20200122101735.jpg" alt="cmd-markdown-logo"><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selector提供选择已经就绪的任务的能力：Selector会不断轮询注册在其上的Channel，如果某个Channel上面发生读或者写事件，这个Channel就处于就绪状态，会被Selector轮询出来，然后通过SelectionKey可以获取就绪Channel的集合，进行后续的I/O操作。<br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一个Selector可以同时轮询多个Channel，因为JDK使用了epoll()代替传统的select实现，所以没有最大连接句柄1024/2048的限制。所以，只需要一个线程负责Selector的轮询，就可以接入成千上万的客户端。</p>
+<p>这种模型也是有问题的：当后端的（如jdbc）操作比较耗时的时候，会发生线程占用的情况。</p>
+<ul>
+<li>多路复用IO的特点是用户进程能同时等待多个IO请求，系统来监控IO状态，其中的任意一个进入读就绪状态，select函数就可以返回。</li>
+<li><p>select： 注册事件由数组管理, 数组是有长度的, 32位机上限1024， 64位机上限2048。轮询查找时需要遍历数组。</p>
+</li>
+<li><p>poll：把select的数组采用链表实现，因此没了最大数量的限制</p>
+</li>
+<li><p>epoll：基于事件回调机制，回调时直接通知进程，无须使用某种方式来查看状态。</p>
+</li>
+</ul>
+<h3 id="AIO（异步非阻塞）"><a href="#AIO（异步非阻塞）" class="headerlink" title="AIO（异步非阻塞）"></a>AIO（异步非阻塞）</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AIO即Asynchronous I/O，这是Java 1.7引入的NIO 2.0中用到的。整个过程中，用户线程发起一个系统调用之后无须等待，可以处理别的事情。由操作系统等待接收内容，接收后把数据拷贝到用户进程中，最后通知用户程序已经可以使用数据了，两个阶段都是非阻塞的。<br></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;服务器实现模式为一个有效请求一个线程，客户端的I/O请求都是由OS先完成了再通知服务器应用去启动线程进行处理。客户端发送请求后不需要不停的问，以及不需要等待。 等到处理结果完成后，会自动通知。AIO需要操作系统的深度支持。<br></p>
+<p><img src="http://139.224.113.197/20200122101749.jpg" alt="cmd-markdown-logo"><br><br></p>
+<ul>
+<li>AIO的特点就是在IO执行的两个阶段都是非阻塞的。</li>
+<li>核心是：<strong>一个有效请求一个线程</strong>。<br></li>
+</ul>
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><ul>
+<li>BIO方式适用于连接数目比较小且固定的架构，这种方式对服务器资源要求比较高，并发局限于应用中，JDK1.4以前的唯一选择，但程序直观简单易理解。</li>
+<li>NIO方式适用于连接数目多且连接比较短（轻操作）的架构，比如聊天服务器，并发局限于应用中，编程比较复杂，JDK1.4开始支持。Jetty，Mina，ZooKeeper等都是基于java nio实现。</li>
+<li>AIO方式使用于连接数目多且连接比较长（重操作）的架构，比如相册服务器，充分调用OS参与并发操作，编程比较复杂，JDK7开始支持。</li>
+</ul>
+<p>参考：<br><br><a href="https://mp.weixin.qq.com/s/r-7WInsktj7hL8pYzeQ4CQ" target="_blank" rel="noopener">十分钟了解BIO、NIO、AIO</a><br><br><a href="https://mp.weixin.qq.com/s/O5LUYAhp8qTw8gCk8C7_gg" target="_blank" rel="noopener">今天我们结合代码详细聊聊BIO，NIO和AIO</a><br><br><a href="https://mp.weixin.qq.com/s/8LQhdaJj16NGlR-DAHLqgQ" target="_blank" rel="noopener">详解NIO、BIO、AIO</a><br><br><a href="https://mp.weixin.qq.com/s/EczCiUpae1edKR4a6sg9Cg" target="_blank" rel="noopener">以Java的视角来聊聊BIO、NIO与AIO的区别？</a><br></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/10/JVM/" rel="next" title="JVM内存结构、垃圾回收及参数配置">
+                <i class="fa fa-chevron-left"></i> JVM内存结构、垃圾回收及参数配置
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/22/Netty/" rel="prev" title="Hystrix分布式系统限流、降级、熔断框架（二）">
+                Hystrix分布式系统限流、降级、熔断框架（二） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Chao geng</p>
+              <p class="site-description motion-element" itemprop="description">ethangeng</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是-I-O"><span class="nav-number">1.</span> <span class="nav-text">什么是 I/O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步与异步"><span class="nav-number">2.</span> <span class="nav-text">同步与异步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#阻塞与非阻塞"><span class="nav-number">3.</span> <span class="nav-text">阻塞与非阻塞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BIO（同步阻塞）"><span class="nav-number">4.</span> <span class="nav-text">BIO（同步阻塞）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NIO（同步非阻塞）"><span class="nav-number">5.</span> <span class="nav-text">NIO（同步非阻塞）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#缓冲区Buffer"><span class="nav-number">5.1.</span> <span class="nav-text">缓冲区Buffer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通道Channel"><span class="nav-number">5.2.</span> <span class="nav-text">通道Channel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多路选择复用器"><span class="nav-number">5.3.</span> <span class="nav-text">多路选择复用器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AIO（异步非阻塞）"><span class="nav-number">6.</span> <span class="nav-text">AIO（异步非阻塞）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用场景"><span class="nav-number">7.</span> <span class="nav-text">使用场景</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chao geng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
